@@ -2,21 +2,23 @@ const Card = require('../models/card');
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
-  const { _id } = req.user._id;
 
-  Card.create({ name, link, _id })
+  Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}` }));
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send({ message: `Произошла ошибка ${err.name}` });
+    });
 };
 
 const getCards = (req, res) => {
-  Card.finde({})
+  Card.find({})
     .then((cards) => res.send({ data: cards }))
     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}` }));
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
+  Card.findByIdAndRemove(req.params.cardId)
     .then((card) => res.send({ data: card }))
     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}` }));
 };

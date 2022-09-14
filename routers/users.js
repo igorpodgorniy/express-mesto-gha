@@ -20,6 +20,6 @@ routerUsers.post('/', createUser);
 routerUsers.patch('/me', updateProfile);
 
 // Обновляем аватар
-routerUsers.patch('/me', updateAvatar);
+routerUsers.patch('/me/avatar', updateAvatar);
 
 module.exports = routerUsers;
