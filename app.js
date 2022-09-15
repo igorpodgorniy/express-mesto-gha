@@ -26,6 +26,11 @@ app.use((req, res, next) => {
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
 
+app.use((req, res, next) => {
+  res.status(404).send({ message: 'Такой страницы не существует' });
+  next();
+});
+
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
