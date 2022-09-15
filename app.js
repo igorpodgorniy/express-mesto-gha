@@ -1,5 +1,4 @@
 const express = require('express');
-const createError = require('http-errors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routerUsers = require('./routers/users');
@@ -26,9 +25,6 @@ app.use((req, res, next) => {
 
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
-app.use((req, res, next) => {
-  next(createError(404, { message: 'Такой страницы не существует' }));
-});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
