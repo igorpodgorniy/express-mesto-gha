@@ -21,7 +21,7 @@ const createUser = (req, res) => {
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' }));
+    .catch(() => res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' }));
 };
 
 const getUser = (req, res) => {

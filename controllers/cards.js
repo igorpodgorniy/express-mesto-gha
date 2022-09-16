@@ -21,7 +21,7 @@ const createCard = (req, res) => {
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' }));
+    .catch(() => res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' }));
 };
 
 const deleteCard = (req, res) => {
@@ -46,12 +46,10 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (!card) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Карточки с указанным id не существует' });
-      }
-      return res.send({ data: card });
-    })
+    .orFail(() => res.status(NOT_FOUND_ERROR).send({
+      message: 'Карточки с указанным id не существует',
+    }))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(VALIDATIN_ERROR).send({ message: 'Был указан некорректный id' });
