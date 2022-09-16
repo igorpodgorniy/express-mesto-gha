@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routerUsers = require('./routers/users');
 const routerCards = require('./routers/cards');
+const { NOT_FOUND_ERROR } = require('./constants/errors');
 
 const { PORT = 3000 } = process.env;
 
@@ -27,7 +28,7 @@ app.use('/users', routerUsers);
 app.use('/cards', routerCards);
 
 app.use((req, res, next) => {
-  res.status(404).send({ message: 'Такой страницы не существует' });
+  res.status(NOT_FOUND_ERROR).send({ message: 'Такой страницы не существует' });
   next();
 });
 
