@@ -26,12 +26,10 @@ const getUsers = (req, res) => {
 
 const getUser = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь с указанным id не существует' });
-      }
-      return res.send({ data: user });
-    })
+    .orFail(() => res.status(NOT_FOUND_ERROR).send({
+      message: 'Пользователь с указанным id не существует',
+    }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(VALIDATIN_ERROR).send({ message: 'Был указан некорректный id' });
