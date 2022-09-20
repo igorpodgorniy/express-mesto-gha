@@ -1,4 +1,9 @@
 const Card = require('../models/card');
+const {
+  DEFAULT_ERROR,
+  VALIDATIN_ERROR,
+  NOT_FOUND_ERROR,
+} = require('../constants/errors');
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
@@ -7,31 +12,31 @@ const createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Были отправлены некорректные данные' });
+        return res.status(VALIDATIN_ERROR).send({ message: 'Были отправлены некорректные данные' });
       }
-      return res.status(500).send({ message: `Что-то пошло не так. Код ошибки: ${err.status}` });
+      return res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
     });
 };
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => res.status(500).send({ message: `Что-то пошло не так. Код ошибки: ${err.status}` }));
+    .catch(() => res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' }));
 };
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Карточки с указанным id не существует' });
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Карточки с указанным id не существует' });
       }
       return res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Был указан некорректный id' });
+        return res.status(VALIDATIN_ERROR).send({ message: 'Был указан некорректный id' });
       }
-      return res.status(500).send({ message: `Что-то пошло не так. Код ошибки: ${err.status}` });
+      return res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -41,17 +46,15 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (!card) {
-        return res.status(404).send({ message: 'Карточки с указанным id не существует' });
-      }
-      return res.send({ data: card });
-    })
+    .orFail(() => res.status(NOT_FOUND_ERROR).send({
+      message: 'Карточки с указанным id не существует',
+    }))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Был указан некорректный id' });
+        return res.status(VALIDATIN_ERROR).send({ message: 'Был указан некорректный id' });
       }
-      return res.status(500).send({ message: `Что-то пошло не так. Код ошибки: ${err.status}` });
+      return res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -63,15 +66,15 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Карточки с указанным id не существует' });
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Карточки с указанным id не существует' });
       }
       return res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Был указан некорректный id' });
+        return res.status(VALIDATIN_ERROR).send({ message: 'Был указан некорректный id' });
       }
-      return res.status(500).send({ message: `Что-то пошло не так. Код ошибки: ${err.status}` });
+      return res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
     });
 };
 
