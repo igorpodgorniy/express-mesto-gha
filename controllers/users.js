@@ -52,6 +52,20 @@ const getUser = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .orFail(() => res.status(NOT_FOUND_ERROR).send({
+      message: 'Пользователь с указанным id не существует',
+    }))
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(VALIDATIN_ERROR).send({ message: 'Был указан некорректный id' });
+      }
+      return res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
+    });
+};
+
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
 
@@ -105,6 +119,7 @@ module.exports = {
   createUser,
   getUsers,
   getUser,
+  getCurrentUser,
   updateProfile,
   updateAvatar,
   login,

@@ -31,11 +31,12 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    select: false,
   },
 });
 
 userSchema.statics.findUserByCredentials = (email, password) => {
-  this.findOne({ email })
+  this.findOne({ email }).select('+password')
     .orFail(() => Promise.reject(new Error('Неправильные почта или пароль')))
     .then((user) => bcrypt.compare(password, user.password)
       .then((matched) => {
