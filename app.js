@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const routerUsers = require('./routers/users');
 const routerCards = require('./routers/cards');
 const { NOT_FOUND_ERROR } = require('./constants/errors');
+const auth = require('./middlewares/auth');
 const {
   login,
   createUser,
@@ -24,8 +25,8 @@ app.use(cookieParser());
 
 app.post('/signin', login);
 app.post('/signup', createUser);
-app.use('/users', routerUsers);
-app.use('/cards', routerCards);
+app.use('/users', auth, routerUsers);
+app.use('/cards', auth, routerCards);
 
 app.use((req, res, next) => {
   res.status(NOT_FOUND_ERROR).send({ message: 'Такой страницы не существует' });
