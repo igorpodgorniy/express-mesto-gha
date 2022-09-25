@@ -53,7 +53,7 @@ app.use((req, res, next) => {
 
 app.use(errors());
 
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   const { statusCode = DEFAULT_ERROR, message } = err;
 
   res
@@ -63,6 +63,8 @@ app.use((err, req, res) => {
         ? 'На сервере произошла ошибка'
         : message,
     });
+
+  next();
 });
 
 app.listen(PORT, () => {
