@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, Joi } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const routerUsers = require('./routers/users');
@@ -50,6 +50,8 @@ app.use((req, res, next) => {
     .send({ message: 'Такой страницы не существует' });
   next();
 });
+
+app.use(errors());
 
 app.use((err, req, res) => {
   const { statusCode = DEFAULT_ERROR, message } = err;
