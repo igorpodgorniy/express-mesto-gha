@@ -21,7 +21,11 @@ const createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({ data: user }))
+    .then(() => res.send({
+      data: {
+        name, about, avatar, email,
+      },
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(new ValidationError('Были отправлены некорректные данные'));
@@ -109,7 +113,7 @@ const login = (req, res, next) => {
         httpOnly: true,
       });
     })
-    .catch(() => next(new ValidationError('Был отправлен некорректный токен')));
+    .catch(next);
 };
 
 module.exports = {
