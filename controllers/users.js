@@ -1,13 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const {
-  DEFAULT_ERROR,
-  VALIDATIN_ERROR,
-  NOT_FOUND_ERROR,
-} = require('../constants/errors');
+const NotFoundError = require('../errors/not-found-error');
+const ValidationError = require('../errors/validation-error');
+const ConflictError = require('../errors/conflict-error');
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -26,73 +24,76 @@ const createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(VALIDATIN_ERROR).send({ message: 'Были отправлены некорректные данные' });
+        return next(new ValidationError('Были отправлены некорректные данные'));
       }
-      return res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
+      if (err.code === 11000) {
+        return next(new ConflictError('Пользователь с указанным email уже существует'));
+      }
+      return next(err);
     });
 };
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' }));
+    .catch(next);
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(() => res.status(NOT_FOUND_ERROR).send({
-      message: 'Пользователь с указанным id не существует',
-    }))
+    .orFail(() => {
+      throw new NotFoundError('Пользователь с указанным id не существует');
+    })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(VALIDATIN_ERROR).send({ message: 'Был указан некорректный id' });
+        return next(new ValidationError('Был указан некорректный id'));
       }
-      return res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
+      return next(err);
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => res.status(NOT_FOUND_ERROR).send({
-      message: 'Пользователь с указанным id не существует',
-    }))
+    .orFail(() => {
+      throw new NotFoundError('Пользователь с указанным id не существует');
+    })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(VALIDATIN_ERROR).send({ message: 'Был указан некорректный id' });
+        return next(new ValidationError('Был указан некорректный id'));
       }
-      return res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
+      return next(err);
     });
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(VALIDATIN_ERROR).send({ message: 'Были отправлены некорректные данные' });
+        return next(new ValidationError('Были отправлены некорректные данные'));
       }
-      return res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
+      return next(err);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(VALIDATIN_ERROR).send({ message: 'Были отправлены некорректные данные' });
+        return next(new ValidationError('Были отправлены некорректные данные'));
       }
-      return res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
+      return next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -108,11 +109,7 @@ const login = (req, res) => {
         httpOnly: true,
       });
     })
-    .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
-    });
+    .catch(() => next(new ValidationError('Был отправлен некорректный токен')));
 };
 
 module.exports = {

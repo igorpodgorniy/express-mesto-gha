@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const routerUsers = require('./routers/users');
 const routerCards = require('./routers/cards');
-const { NOT_FOUND_ERROR } = require('./constants/errors');
+const { NOT_FOUND_ERROR, DEFAULT_ERROR } = require('./constants/errors');
 const auth = require('./middlewares/auth');
 const {
   login,
@@ -29,8 +29,22 @@ app.use('/users', auth, routerUsers);
 app.use('/cards', auth, routerCards);
 
 app.use((req, res, next) => {
-  res.status(NOT_FOUND_ERROR).send({ message: 'Такой страницы не существует' });
+  res
+    .status(NOT_FOUND_ERROR)
+    .send({ message: 'Такой страницы не существует' });
   next();
+});
+
+app.use((err, req, res) => {
+  const { statusCode = DEFAULT_ERROR, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === DEFAULT_ERROR
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
 });
 
 app.listen(PORT, () => {
