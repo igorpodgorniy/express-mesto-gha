@@ -40,8 +40,9 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use('/users', auth, routerUsers);
-app.use('/cards', auth, routerCards);
+app.use(auth);
+app.use('/users', routerUsers);
+app.use('/cards', routerCards);
 
 app.use((req, res, next) => {
   res
