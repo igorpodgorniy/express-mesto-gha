@@ -14,7 +14,7 @@ routerCards.get('/', getCards);
 // Удаляем карточку по идентификатору
 routerCards.delete('/:cardId', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().length(24).required(),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 }), deleteCard);
 
@@ -29,14 +29,14 @@ routerCards.post('/', celebrate({
 // Ставим лайк карточке
 routerCards.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().length(24).required(),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 }), likeCard);
 
 // Удаляем лайк у карточки
 routerCards.delete('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().length(24).required(),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 }), dislikeCard);
 
