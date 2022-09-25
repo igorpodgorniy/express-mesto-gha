@@ -5,7 +5,8 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const routerUsers = require('./routers/users');
 const routerCards = require('./routers/cards');
-const { NOT_FOUND_ERROR, DEFAULT_ERROR } = require('./constants/errors');
+const NotFoundError = require('./errors/not-found-error');
+const { DEFAULT_ERROR } = require('./constants/errors');
 const auth = require('./middlewares/auth');
 const {
   login,
@@ -45,10 +46,7 @@ app.use('/users', routerUsers);
 app.use('/cards', routerCards);
 
 app.use((req, res, next) => {
-  res
-    .status(NOT_FOUND_ERROR)
-    .send({ message: 'Такой страницы не существует' });
-  next();
+  next(new NotFoundError('Такой страницы не существует'));
 });
 
 app.use(errors());
