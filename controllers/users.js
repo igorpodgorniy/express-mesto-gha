@@ -63,12 +63,7 @@ const getCurrentUser = (req, res, next) => {
       throw new NotFoundError('Пользователь с указанным id не существует');
     })
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new ValidationError('Был указан некорректный id'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 const updateProfile = (req, res, next) => {
@@ -111,8 +106,8 @@ const login = (req, res, next) => {
       res.cookie('token', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
-      });
-      res.send({ token });
+      }).end();
+      // res.send({ token });
     })
     .catch(next);
 };
